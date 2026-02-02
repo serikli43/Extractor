@@ -11,3 +11,6 @@ Ein natives macOS-Tool zum Entpacken und Analysieren von Archiven. Es nutzt unte
 * Swift (macOS App)
 * AppKit / SwiftUI
 * Shell-Integration (Process/Pipe)
+
+
+Legal Note: This application bundles the 7-Zip console version (7zz), which is licensed under the GNU LGPL. The source code for 7-Zip can be found at www.7-zip.org.
