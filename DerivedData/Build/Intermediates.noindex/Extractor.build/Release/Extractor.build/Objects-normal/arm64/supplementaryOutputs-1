@@ -1,0 +1,12 @@
+{
+  "/Users/semih/Extractor/Extractor/ArchiveViewerModel.swift" : {
+    "abi-baseline-json" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor.abi.json",
+    "const-values" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor-primary.swiftconstvalues",
+    "dependencies" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor-primary.d",
+    "diagnostics" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor-primary.dia",
+    "objc-header" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor-Swift.h",
+    "swiftdoc" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor.swiftdoc",
+    "swiftmodule" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor.swiftmodule",
+    "swiftsourceinfo" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor.swiftsourceinfo"
+  }
+}

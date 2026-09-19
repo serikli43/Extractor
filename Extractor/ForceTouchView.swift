@@ -33,6 +33,11 @@ class ForceTouchNSView: NSView {
 
     override func updateTrackingAreas() {
         super.updateTrackingAreas()
+        
+        for trackingArea in self.trackingAreas {
+            self.removeTrackingArea(trackingArea)
+        }
+        
         self.addTrackingArea(NSTrackingArea(rect: self.bounds,
                                             options: [.activeAlways, .mouseEnteredAndExited, .enabledDuringMouseDrag],
                                             owner: self,
@@ -54,21 +59,5 @@ class ForceTouchNSView: NSView {
             }
         }
         pressureStage = event.stage
-    }
-}
-
-class QuickLookPreviewDataSource: NSObject, QLPreviewPanelDataSource {
-    let fileURL: URL
-
-    init(fileURL: URL) {
-        self.fileURL = fileURL
-    }
-
-    func numberOfPreviewItems(in panel: QLPreviewPanel!) -> Int {
-        return 1
-    }
-
-    func previewPanel(_ panel: QLPreviewPanel!, previewItemAt index: Int) -> QLPreviewItem! {
-        return fileURL as QLPreviewItem
     }
 }

@@ -16,6 +16,7 @@ class ArchiveViewModel: ObservableObject {
 
     @Published var requiresPassword: Bool = false
     @Published var password: String = ""
+    @Published var showCompressionPrompt: Bool = false
 
     let supportedFormats = ["7z", "zip", "tar", "wim", "gzip", "bzip2", "xz"]
     let supportedArchiveExtensions: Set<String> = ["7z", "zip", "rar", "tar", "wim", "gzip", "bzip2", "xz"]
@@ -43,15 +44,9 @@ class ArchiveViewModel: ObservableObject {
             self.inputPath = self.selectedURLs.first?.path ?? ""
             self.checkIfPasswordNeeded()
 
-            if self.selectedURLs.count > 1 {
+            if self.selectedURLs.count > 1 && !self.isArchive {
                 DispatchQueue.main.async {
-                    let alert = NSAlert()
-                    alert.messageText = "Compression"
-                    alert.informativeText = "Do you want to compress all selected items individually or together?"
-                    alert.addButton(withTitle: "Individually")
-                    alert.addButton(withTitle: "Together")
-                    let response = alert.runModal()
-                    self.compressTogether = (response == .alertSecondButtonReturn)
+                    self.showCompressionPrompt = true
                 }
             } else {
                 self.compressTogether = false
@@ -66,108 +61,116 @@ class ArchiveViewModel: ObservableObject {
         }
 
         let inputURL = URL(fileURLWithPath: self.inputPath)
-        let process = Process()
-        let pipe = Pipe()
+        
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            let process = Process()
+            let pipe = Pipe()
 
-        process.executableURL = sevenZipURL
-        process.arguments = ["t", "-p-", inputURL.path]
-        process.standardOutput = pipe
-        process.standardError = pipe
+            process.executableURL = sevenZipURL
+            process.arguments = ["t", "-p-", inputURL.path]
+            process.standardOutput = pipe
+            process.standardError = pipe
 
-        do {
-            try process.run()
-            process.waitUntilExit()
+            do {
+                try process.run()
+                process.waitUntilExit()
 
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            let output = String(decoding: data, as: UTF8.self)
+                let data = pipe.fileHandleForReading.readDataToEndOfFile()
+                let output = String(decoding: data, as: UTF8.self)
 
-            let needsPassword = output.lowercased().contains("encrypted") || output.lowercased().contains("password")
+                let needsPassword = output.lowercased().contains("encrypted") || output.lowercased().contains("password")
 
-            DispatchQueue.main.async {
-                self.requiresPassword = needsPassword
+                DispatchQueue.main.async {
+                    self.requiresPassword = needsPassword
+                }
+                completion(needsPassword)
+            } catch {
+                DispatchQueue.main.async {
+                    self.resultMessage = "Error checking archive: \(error.localizedDescription)"
+                    self.requiresPassword = false
+                }
+                completion(false)
             }
-            completion(needsPassword)
-        } catch {
-            DispatchQueue.main.async {
-                self.resultMessage = "Error checking archive: \(error.localizedDescription)"
-                self.requiresPassword = false
-            }
-            completion(false)
         }
     }
 
     func extractFile() {
-        guard let sevenZipURL = sevenZipURL, !inputPath.isEmpty else {
+        guard let sevenZipURL = sevenZipURL, !selectedURLs.isEmpty else {
             return
         }
 
-        DispatchQueue.global(qos: .userInitiated).async {
-            let inputURL = URL(fileURLWithPath: self.inputPath)
-            let parentFolderURL = inputURL.deletingLastPathComponent()
-            let ext = inputURL.pathExtension.lowercased()
-            let isSingleFileFormat = ["xz", "bzip2", "gzip"].contains(ext)
-            let outputFolderURL = parentFolderURL.appendingPathComponent(inputURL.deletingPathExtension().lastPathComponent)
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
 
-            do {
-                try FileManager.default.createDirectory(at: outputFolderURL, withIntermediateDirectories: true)
-            } catch {
-                DispatchQueue.main.async {
-                    self.resultMessage = "Error creating output folder: \(error.localizedDescription)"
+            DispatchQueue.main.async {
+                self.isProcessing = true
+                self.progressTotal = self.selectedURLs.count
+                self.progressCurrent = 0
+            }
+
+            for inputURL in self.selectedURLs {
+                let parentFolderURL = inputURL.deletingLastPathComponent()
+                let ext = inputURL.pathExtension.lowercased()
+                let isSingleFileFormat = ["xz", "bzip2", "gzip"].contains(ext)
+                let outputFolderURL = parentFolderURL.appendingPathComponent(inputURL.deletingPathExtension().lastPathComponent)
+
+                do {
+                    try FileManager.default.createDirectory(at: outputFolderURL, withIntermediateDirectories: true)
+                } catch {
+                    DispatchQueue.main.async {
+                        self.resultMessage = "Error creating output folder: \(error.localizedDescription)"
+                    }
+                    continue
                 }
-                return
-            }
 
-            let process = Process()
-            process.executableURL = sevenZipURL
+                let process = Process()
+                process.executableURL = sevenZipURL
 
-            var args = ["x", self.inputPath, "-o" + outputFolderURL.path, "-y"]
-            if !self.password.isEmpty {
-                args.append("-p\(self.password)")
-            }
-            process.arguments = args
+                var args = ["x", inputURL.path, "-o" + outputFolderURL.path, "-y"]
+                if !self.password.isEmpty {
+                    args.append("-p\(self.password)")
+                }
+                process.arguments = args
 
-            process.terminationHandler = { proc in
-                DispatchQueue.main.async {
-                    if proc.terminationStatus == 0 {
-                        do {
-                            if isSingleFileFormat {
-                                let files = try FileManager.default.contentsOfDirectory(at: outputFolderURL, includingPropertiesForKeys: nil)
-                                for file in files {
-                                    if file.pathExtension.isEmpty {
-                                        let newURL = file.appendingPathExtension(inputURL.deletingPathExtension().pathExtension)
-                                        try FileManager.default.moveItem(at: file, to: newURL)
+                do {
+                    try process.run()
+                    process.waitUntilExit()
+
+                    DispatchQueue.main.async {
+                        if process.terminationStatus == 0 {
+                            do {
+                                if isSingleFileFormat {
+                                    let files = try FileManager.default.contentsOfDirectory(at: outputFolderURL, includingPropertiesForKeys: nil)
+                                    for file in files {
+                                        if file.pathExtension.isEmpty {
+                                            let newURL = file.appendingPathExtension(inputURL.deletingPathExtension().pathExtension)
+                                            try FileManager.default.moveItem(at: file, to: newURL)
+                                        }
                                     }
                                 }
-                            }
 
-                            let files = try FileManager.default.contentsOfDirectory(at: outputFolderURL, includingPropertiesForKeys: nil)
-                            self.progressTotal = files.count
-                            self.progressCurrent = files.count
-                            self.resultMessage = "Extracted successfully to \(outputFolderURL.path)"
-                            self.sendNotification(title: "Extracting finished", body: outputFolderURL.lastPathComponent)
-                        } catch {
-                            self.resultMessage = "Error post-processing extracted files: \(error.localizedDescription)"
+                                self.resultMessage = "Extracted successfully to \(outputFolderURL.path)"
+                                self.sendNotification(title: "Extracting finished", body: outputFolderURL.lastPathComponent)
+                            } catch {
+                                self.resultMessage = "Error post-processing extracted files: \(error.localizedDescription)"
+                            }
+                        } else {
+                            self.resultMessage = "Error while extracting (Code \(process.terminationStatus))"
                         }
-                    } else {
-                        self.resultMessage = "Error while extracting (Code \(proc.terminationStatus))"
+                        self.progressCurrent += 1
                     }
-                    self.isProcessing = false
+                } catch {
+                    DispatchQueue.main.async {
+                        self.resultMessage = "Error: \(error.localizedDescription)"
+                        self.progressCurrent += 1
+                    }
                 }
             }
 
             DispatchQueue.main.async {
-                self.isProcessing = true
-                self.progressTotal = 1
-                self.progressCurrent = 0
-            }
-
-            do {
-                try process.run()
-            } catch {
-                DispatchQueue.main.async {
-                    self.resultMessage = "Error: \(error.localizedDescription)"
-                    self.isProcessing = false
-                }
+                self.isProcessing = false
+                self.clearFiles()
             }
         }
     }
@@ -177,7 +180,8 @@ class ArchiveViewModel: ObservableObject {
             return
         }
 
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
             let parentFolderURL = self.selectedURLs.first!.deletingLastPathComponent()
             let tasks = self.compressTogether ? [self.selectedURLs] : self.selectedURLs.map { [$0] }
 
@@ -188,11 +192,7 @@ class ArchiveViewModel: ObservableObject {
                 self.resultMessage = ""
             }
 
-            let group = DispatchGroup()
-
             for urls in tasks {
-                group.enter()
-
                 let archiveName = urls.count == 1
                     ? urls[0].deletingPathExtension().appendingPathExtension(self.selectedFormat)
                     : parentFolderURL.appendingPathComponent("Archive").appendingPathExtension(self.selectedFormat)
@@ -204,34 +204,41 @@ class ArchiveViewModel: ObservableObject {
                 let process = Process()
                 process.executableURL = sevenZipURL
                 process.arguments = args
-                process.terminationHandler = { proc in
-                    DispatchQueue.main.async {
-                        if proc.terminationStatus == 0 {
-                            self.resultMessage = "Compressed \(archiveName.lastPathComponent) successfully."
-                        } else {
-                            self.resultMessage = "Error compressing \(archiveName.lastPathComponent) (Code \(proc.terminationStatus))"
-                        }
-                        self.progressCurrent += 1
-                    }
-                    group.leave()
-                }
 
                 do {
                     try process.run()
+                    process.waitUntilExit()
+
+                    DispatchQueue.main.async {
+                        if process.terminationStatus == 0 {
+                            self.resultMessage = "Compressed \(archiveName.lastPathComponent) successfully."
+                        } else {
+                            self.resultMessage = "Error compressing \(archiveName.lastPathComponent) (Code \(process.terminationStatus))"
+                        }
+                        self.progressCurrent += 1
+                    }
                 } catch {
                     DispatchQueue.main.async {
                         self.resultMessage = "Error: \(error.localizedDescription)"
                         self.progressCurrent += 1
                     }
-                    group.leave()
                 }
             }
 
-            group.notify(queue: .main) {
+            DispatchQueue.main.async {
                 self.isProcessing = false
+                self.clearFiles()
             }
         }
     }
+    func clearFiles() {
+        self.selectedURLs.removeAll()
+        self.inputPath = ""
+        self.isArchive = false
+        self.requiresPassword = false
+        self.password = ""
+    }
+
     func sendNotification(title: String, body: String) {
         let center = UNUserNotificationCenter.current()
         center.requestAuthorization(options: [.alert, .sound]) { granted, error in

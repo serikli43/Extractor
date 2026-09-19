@@ -1,0 +1,51 @@
+{
+  "" : {
+    "const-values" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor-primary.swiftconstvalues",
+    "dependencies" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor-primary.d",
+    "diagnostics" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor-primary.dia",
+    "emit-module-dependencies" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor-primary-emit-module.dia",
+    "pch" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/Extractor-primary.swiftdeps"
+  },
+  "/Users/semih/Extractor/AppDelegate.swift" : {
+    "index-unit-output-path" : "/Extractor.build/Release/Extractor.build/Objects-normal/arm64/AppDelegate.o",
+    "llvm-bc" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/AppDelegate.bc",
+    "object" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/AppDelegate.o"
+  },
+  "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "index-unit-output-path" : "/Extractor.build/Release/Extractor.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/GeneratedAssetSymbols.o"
+  },
+  "/Users/semih/Extractor/Extractor/ArchiveViewerModel.swift" : {
+    "index-unit-output-path" : "/Extractor.build/Release/Extractor.build/Objects-normal/arm64/ArchiveViewerModel.o",
+    "llvm-bc" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/ArchiveViewerModel.bc",
+    "object" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/ArchiveViewerModel.o"
+  },
+  "/Users/semih/Extractor/Extractor/ContentView.swift" : {
+    "index-unit-output-path" : "/Extractor.build/Release/Extractor.build/Objects-normal/arm64/ContentView.o",
+    "llvm-bc" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/ContentView.bc",
+    "object" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/ContentView.o"
+  },
+  "/Users/semih/Extractor/Extractor/ExtractorApp.swift" : {
+    "index-unit-output-path" : "/Extractor.build/Release/Extractor.build/Objects-normal/arm64/ExtractorApp.o",
+    "llvm-bc" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/ExtractorApp.bc",
+    "object" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/ExtractorApp.o"
+  },
+  "/Users/semih/Extractor/Extractor/ForceTouchView.swift" : {
+    "index-unit-output-path" : "/Extractor.build/Release/Extractor.build/Objects-normal/arm64/ForceTouchView.o",
+    "llvm-bc" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/ForceTouchView.bc",
+    "object" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/ForceTouchView.o"
+  },
+  "/Users/semih/Extractor/Extractor/QuickLookPreviewDataSource.swift" : {
+    "index-unit-output-path" : "/Extractor.build/Release/Extractor.build/Objects-normal/arm64/QuickLookPreviewDataSource.o",
+    "llvm-bc" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/QuickLookPreviewDataSource.bc",
+    "object" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/QuickLookPreviewDataSource.o"
+  },
+  "/Users/semih/Extractor/Extractor/WindowsAccessor.swift" : {
+    "index-unit-output-path" : "/Extractor.build/Release/Extractor.build/Objects-normal/arm64/WindowsAccessor.o",
+    "llvm-bc" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/WindowsAccessor.bc",
+    "object" : "/Users/semih/Extractor/DerivedData/Build/Intermediates.noindex/Extractor.build/Release/Extractor.build/Objects-normal/arm64/WindowsAccessor.o"
+  }
+}

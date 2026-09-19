@@ -20,7 +20,7 @@ struct ContentView: View {
         ZStack {
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.blue, lineWidth: 2)
-                .frame(width: 400, height: 450) // Höhe etwas erhöht für Liste
+                .frame(minWidth: 400, minHeight: 450) // Höhe etwas erhöht für Liste
 
             VStack(spacing: 20) {
                 Text("7-Zip GUI for macOS")
@@ -123,7 +123,7 @@ struct ContentView: View {
                 }
             }
             .padding()
-            .frame(width: 400, height: 450) // Höhe angepasst für Liste
+            .frame(minWidth: 400, minHeight: 450) // Höhe angepasst für Liste
         }
         .sheet(isPresented: $showPasswordSheet) {
             VStack(spacing: 20) {
@@ -148,6 +148,20 @@ struct ContentView: View {
             }
             .padding()
             .frame(width: 300, height: 150)
+        }
+        .confirmationDialog(
+            "Compression",
+            isPresented: $viewModel.showCompressionPrompt,
+            titleVisibility: .visible
+        ) {
+            Button("Individually") {
+                viewModel.compressTogether = false
+            }
+            Button("Together") {
+                viewModel.compressTogether = true
+            }
+        } message: {
+            Text("Do you want to compress all selected items individually or together?")
         }
         .onDrop(of: ["public.file-url"], isTargeted: nil, perform: handleDrop(providers:))
         .onAppear {
@@ -174,16 +188,10 @@ struct ContentView: View {
                                 viewModel.isArchive = viewModel.selectedURLs.allSatisfy { viewModel.supportedArchiveExtensions.contains($0.pathExtension.lowercased()) }
                                 viewModel.checkIfPasswordNeeded()
                                 // Insert compression prompt if multiple files are selected
-                                if viewModel.selectedURLs.count > 1 {
-                                    DispatchQueue.main.async {
-                                        let alert = NSAlert()
-                                        alert.messageText = "Compression"
-                                        alert.informativeText = "Do you want to compress all selected items individually or together?"
-                                        alert.addButton(withTitle: "Individually")
-                                        alert.addButton(withTitle: "Together")
-                                        let response = alert.runModal()
-                                        viewModel.compressTogether = (response == .alertSecondButtonReturn)
-                                    }
+                                if viewModel.selectedURLs.count > 1 && !viewModel.isArchive {
+                                    viewModel.showCompressionPrompt = true
+                                } else {
+                                    viewModel.compressTogether = false
                                 }
                             }
                         }
@@ -201,22 +209,6 @@ struct ContentView: View {
         panel?.makeKeyAndOrderFront(nil)
         panel?.dataSource = quickLookDataSource
         panel?.reloadData()
-    }
-
-    class QuickLookPreviewDataSource: NSObject, QLPreviewPanelDataSource {
-        let fileURL: URL
-
-        init(fileURL: URL) {
-            self.fileURL = fileURL
-        }
-
-        func numberOfPreviewItems(in panel: QLPreviewPanel!) -> Int {
-            return 1
-        }
-
-        func previewPanel(_ panel: QLPreviewPanel!, previewItemAt index: Int) -> QLPreviewItem! {
-            return fileURL as QLPreviewItem
-        }
     }
     private func removeFile(_ url: URL) {
         if let index = viewModel.selectedURLs.firstIndex(of: url) {
